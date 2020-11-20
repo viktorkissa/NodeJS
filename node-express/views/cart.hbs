@@ -1,6 +1,7 @@
 <h1>Cart</h1>
 
-{{#if courses.length}}
+<div id="cart">
+    {{#if courses.length}}
 <table>
     <thead>
         <tr>
@@ -12,10 +13,10 @@
     <tbody>
         {{#each courses}}
         <tr>
-            <td>{{title}} {{id}}</td>
+            <td>{{title}}</td>
             <td>{{count}}</td>
             <td>
-                <button class="btn btn-small">Delete</button>
+                <button class="btn btn-small js-remove" data-id="{{id}}">Delete</button>
             </td>
         </tr>
         {{/each}}
@@ -26,3 +27,4 @@
 {{else}}
 <p>Cart is empty</p>
 {{/if}}
+</div>
