@@ -1,4 +1,29 @@
-const { v4: uuid } = require('uuid')
+const {Schema, model} = require('mongoose')
+
+// id goes by default
+const course = new Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    img: {
+        type: String
+    }
+})
+
+module.exports = model('Course', course)
+
+
+
+
+
+
+// Working through files
+/* const { v4: uuid } = require('uuid')
 const fs = require('fs')
 const path = require('path')
 
@@ -83,3 +108,4 @@ class Course {
 }
 
 module.exports = Course
+*/

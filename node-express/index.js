@@ -1,5 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const path = require('path')
+const mongoose = require('mongoose')
 const exphbs = require('express-handlebars')
 const homeRoutes = require('./routes/home')
 const addRoutes = require('./routes/add')
@@ -43,6 +45,22 @@ app.use('/cart', cartRoutes)
 
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}...`)
-})
+
+async function start() {
+    try {
+        const URL = `mongodb+srv://${process.env.MONGODB_NAME}:${process.env.MONGODB_PASSWORD}@cluster0.z75lf.mongodb.net/shop`
+        await mongoose.connect(URL, {
+            useNewUrlParser: true, 
+            useUnifiedTopology: true,
+            useFindAndModify: false
+        })
+    
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}...`)
+        })
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+start()
