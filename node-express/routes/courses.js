@@ -4,13 +4,15 @@ const Course = require('../models/course')
 const router = Router()
 
 router.get('/', async (req, res) => {
-    const courses = await Course.find().lean()  
+    const courses = await Course.find()
+    .populate('userId', 'email name')
+    .lean()  
+
     res.render('courses',  {
         title: 'Courses',
         isCourses: true,
         courses
     })
-    console.log(courses)
 })
 
 router.get('/:id/edit', async(req, res) => {
