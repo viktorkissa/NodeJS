@@ -1,6 +1,8 @@
 require('dotenv').config()
 const express = require('express')
 const path = require('path')
+const csurf = require('csurf')
+const flash = require('connect-flash')
 const mongoose = require('mongoose')
 const exphbs = require('express-handlebars')
 const Handlebars = require('handlebars')
@@ -13,12 +15,12 @@ const coursesRoutes = require('./routes/courses')
 const cartRoutes = require('./routes/cart')
 const ordersRoutes = require('./routes/orders')
 const authRoutes = require('./routes/auth')
-const User = require('./models/user')
 const varMiddleware = require('./middleware/variables')
 const userMiddleware = require('./middleware/user')
+const keys = require('./keys')
 
-const MONGODB_URI = `mongodb+srv://${process.env.MONGODB_NAME}:${process.env.MONGODB_PASSWORD}@cluster0.z75lf.mongodb.net/shop`
 const app = express()
+const PORT = process.env.PORT || 3000
 
 const hbs = exphbs.create({
     defaultLayout: 'main', 
@@ -27,7 +29,7 @@ const hbs = exphbs.create({
   });
   const store = MongoStore({
       collection: 'sessions',
-      uri: MONGODB_URI
+      uri: keys.MONGODB_URI
   })
 
 app.engine('hbs', hbs.engine)
@@ -47,11 +49,13 @@ app.set('views', 'views')
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({extended: true}))
 app.use(session({
-    secret: 'some secret value',
+    secret: keys.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store
 }))
+app.use(csurf())
+app.use(flash())
 app.use(varMiddleware)
 app.use(userMiddleware)
 
@@ -62,29 +66,9 @@ app.use('/cart', cartRoutes)
 app.use('/orders', ordersRoutes)
 app.use('/auth', authRoutes)
 
-// app.get('/', (req, res) => {
-//     // res.status(200) // goes by default
-//     // res.sendFile(path.join(__dirname, 'views', 'index.html'))
-//     res.render('index', {
-//         title: 'Main page',
-//         isHome: true
-//     }) // when use handlebars
-// })
-
-// app.get('/about', (req, res) => {
-//     // res.sendFile(path.join(__dirname, 'views', 'about.html'))
-//     res.render('about',  {
-//         title: 'About',
-//         isAbout: true
-//     })
-// })
-
-const PORT = process.env.PORT || 3000
-
-
 async function start() {
     try {        
-        await mongoose.connect(MONGODB_URI, {
+        await mongoose.connect(keys.MONGODB_URI, {
             useNewUrlParser: true, 
             useUnifiedTopology: true,
             useFindAndModify: false
