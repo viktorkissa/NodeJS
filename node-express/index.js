@@ -25,7 +25,8 @@ const PORT = process.env.PORT || 3000
 const hbs = exphbs.create({
     defaultLayout: 'main', 
     extname: 'hbs',
-    handlebars: allowInsecurePrototypeAccess(Handlebars)
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
+    helpers: require('./utils/hbs-helpers')
   });
   const store = MongoStore({
       collection: 'sessions',

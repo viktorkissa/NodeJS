@@ -3,10 +3,13 @@ const bcrypt = require('bcryptjs')
 const crypto = require('crypto')
 const nodemailer = require('nodemailer')
 const sendgrid = require('nodemailer-sendgrid-transport')
+const {validationResult} = require('express-validator/check')
+
 const User = require('../models/user')
 const keys = require('../keys')
 const regEmail = require('../emails/registration')
 const resetEmail = require('../emails/reset')
+const {registerValidators} = require('../utils/validators')
 const router = Router()
 
 const transporter = nodemailer.createTransport(sendgrid({
@@ -61,23 +64,23 @@ router.post('/login', async (req, res) => {
     }       
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', registerValidators, async (req, res) => {
     try {
-        const {email, name, password, repeat} = req.body
-        const candidate = await User.findOne({ email })
+        const {email, name, password} = req.body
+        const errors = validationResult(req)
 
-        if (candidate) {
-            req.flash('registerError', 'User with such email is already exists!')
-            res.redirect('/auth/login#register')
-        } else {
-            const hashPassword = await bcrypt.hash(password, 10)
-            const user = new User({
-                email, name, password: hashPassword, cart: {items: []}
-            })
-            await user.save()            
-            res.redirect('/auth/login#login')
-            await transporter.sendMail(regEmail(email))
+        if (!errors.isEmpty()) {
+            req.flash('registerError', errors.array()[0].msg)
+            return res.status(422).redirect('/auth/login#register')
         }
+ 
+        const hashPassword = await bcrypt.hash(password, 10)
+        const user = new User({
+            email, name, password: hashPassword, cart: {items: []}
+        })
+        await user.save()            
+        res.redirect('/auth/login#login')
+        await transporter.sendMail(regEmail(email))
     } catch (e) {
         console.log(e)
     }
