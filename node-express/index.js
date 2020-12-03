@@ -17,6 +17,7 @@ const ordersRoutes = require('./routes/orders')
 const authRoutes = require('./routes/auth')
 const varMiddleware = require('./middleware/variables')
 const userMiddleware = require('./middleware/user')
+const errorHandler = require('./middleware/error')
 const keys = require('./keys')
 
 const app = express()
@@ -66,6 +67,8 @@ app.use('/courses', coursesRoutes)
 app.use('/cart', cartRoutes)
 app.use('/orders', ordersRoutes)
 app.use('/auth', authRoutes)
+
+app.use(errorHandler) // always in the end
 
 async function start() {
     try {        
